@@ -49,9 +49,7 @@ RUN yum install -y \
 #  && ln -s /okit/git /okit/okitweb/static/okit/git
 # Copy source code
 COPY config /okit/config
-COPY okitweb /okit/okitweb
-COPY instance /okit/instance
-COPY visualiser /okit/visualiser
+## Removed COPY commands for missing directories: okitweb, instance, visualiser
 COPY containers/oci/* /root/.oci/
 COPY containers/ssh/* /root/.ssh/
 RUN chmod 600 /root/.ssh/* \
