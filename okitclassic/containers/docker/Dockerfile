@@ -4,7 +4,7 @@
 
 FROM oraclelinux:8
 LABEL "provider"="Oracle" \
-      "issues"="https://github.com/oracle/oci-designer-toolkit/issues" \
+      "issues"="https://github.com/ajithy/oci-designer-toolkit/issues" \
       "version"="0.69.0" \
       "description"="OKIT Web Server Container." \
       "copyright"="Copyright (c) 2020, 2024, Oracle and/or its affiliates."
@@ -52,12 +52,11 @@ COPY config /okit/config
 COPY okitweb /okit/okitweb
 COPY instance /okit/instance
 COPY visualiser /okit/visualiser
-COPY skeletons /okit/skeletons
 COPY containers/oci/* /root/.oci/
 COPY containers/ssh/* /root/.ssh/
 RUN chmod 600 /root/.ssh/* \
  && ln -s /okit/okitweb/static/okit/templates/reference_architecture /okit/instance/templates/reference_architecture 
 
 # Add entrypoint to automatically start webserver
-ENTRYPOINT ["gunicorn", "okitweb.wsgi:app"]
+ENTRYPOINT ["gunicorn", "okitclassic.okitserver.wsgi:app"]
 CMD ["--config", "/okit/config/gunicorn_http.py"]
