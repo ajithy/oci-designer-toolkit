@@ -49,11 +49,12 @@ RUN mkdir -p /okit/{config,git,instance/git,instance/local,instance/templates/us
 #  && ln -s /okit/templates /okit/okitweb/static/okit/templates/user \
 #  && ln -s /okit/git /okit/okitweb/static/okit/templates/git \
 #  && ln -s /okit/git /okit/okitweb/static/okit/git
-# Copy source code
+## Copy source code
 COPY config /okit/config
+COPY ../../okitclassic /okitclassic
 ## Removed COPY commands for missing directories: okitweb, instance, visualiser
-## Removed COPY command for missing containers/oci directory
-## COPY containers/ssh/* /root/.ssh/
+COPY ../../containers/oci /root/.oci
+COPY ../../containers/ssh/* /root/.ssh/
 RUN chmod 600 /root/.ssh/* \
  && ln -s /okit/okitweb/static/okit/templates/reference_architecture /okit/instance/templates/reference_architecture 
 
