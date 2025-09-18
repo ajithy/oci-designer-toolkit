@@ -52,8 +52,8 @@ RUN mkdir -p /okit/{config,git,instance/git,instance/local,instance/templates/us
 # Copy source code
 COPY config /okit/config
 ## Removed COPY commands for missing directories: okitweb, instance, visualiser
-COPY containers/oci/* /root/.oci/
-COPY containers/ssh/* /root/.ssh/
+## Removed COPY command for missing containers/oci directory
+## COPY containers/ssh/* /root/.ssh/
 RUN chmod 600 /root/.ssh/* \
  && ln -s /okit/okitweb/static/okit/templates/reference_architecture /okit/instance/templates/reference_architecture 
 
