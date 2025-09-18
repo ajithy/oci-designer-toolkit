@@ -38,9 +38,10 @@ RUN yum install -y \
  && echo '  UserKnownHostsFile=/dev/null' >> /etc/ssh/ssh_config \
 # Upgrade pip
  && python3 -m pip install --upgrade pip \
+COPY requirements.txt /requirements.txt
 # Install required python modules
  && python3 -m pip install --no-cache-dir \
-        -r requirements.txt \
+     -r /requirements.txt \
 # Create Workspace
  && mkdir -p /okit/{config,git,instance/git,instance/local,instance/templates/user,local,log,ssl,visualiser,okitweb,workspace,skeletons} \
 #  && mkdir -p /okit/okitweb/static/okit/templates \
