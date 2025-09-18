@@ -44,8 +44,7 @@ COPY requirements.txt /requirements.txt
 
 # Install required python modules
 RUN python3 -m pip install --no-cache-dir -r /requirements.txt
-# Create Workspace
- && mkdir -p /okit/{config,git,instance/git,instance/local,instance/templates/user,local,log,ssl,visualiser,okitweb,workspace,skeletons} \
+RUN mkdir -p /okit/{config,git,instance/git,instance/local,instance/templates/user,local,log,ssl,visualiser,okitweb,workspace,skeletons}
 #  && mkdir -p /okit/okitweb/static/okit/templates \
 #  && ln -s /okit/templates /okit/okitweb/static/okit/templates/user \
 #  && ln -s /okit/git /okit/okitweb/static/okit/templates/git \
