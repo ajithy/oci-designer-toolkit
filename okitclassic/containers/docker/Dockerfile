@@ -36,12 +36,14 @@ RUN yum install -y \
  && echo 'Host *' > /etc/ssh/ssh_config \
  && echo '  StrictHostKeyChecking no' >> /etc/ssh/ssh_config \
  && echo '  UserKnownHostsFile=/dev/null' >> /etc/ssh/ssh_config \
-# Upgrade pip
- && python3 -m pip install --upgrade pip \
+ # Upgrade pip
+ && python3 -m pip install --upgrade pip
+
+# Copy requirements.txt before installing Python packages
 COPY requirements.txt /requirements.txt
+
 # Install required python modules
- && python3 -m pip install --no-cache-dir \
-     -r /requirements.txt \
+RUN python3 -m pip install --no-cache-dir -r /requirements.txt
 # Create Workspace
  && mkdir -p /okit/{config,git,instance/git,instance/local,instance/templates/user,local,log,ssl,visualiser,okitweb,workspace,skeletons} \
 #  && mkdir -p /okit/okitweb/static/okit/templates \
