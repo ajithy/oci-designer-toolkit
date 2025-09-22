@@ -1,25 +1,22 @@
 
-# Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-FROM oraclelinux:8
-ARG BRANCH=main
+FROM oraclelinux:7-slim
 LABEL "provider"="Oracle" \
-      "issues"="https://github.com/ajithy/oci-designer-toolkit" \
-      "version"="0.69.0" \
+      "issues"="https://github.com/oracle/oci-designer-toolkit/issues" \
+      "version"="0.24.5" \
       "description"="OKIT Web Server Container." \
-      "copyright"="Copyright (c) 2020, 2024, Oracle and/or its affiliates."
-# SHELL ["/bin/bash", "-c"]
+      "copyright"="Copyright (c) 2020, 2021, Oracle and/or its affiliates."
+SHELL ["/bin/bash", "-c"]
 ENV PYTHONIOENCODING=utf8 \
-    PYTHONPATH=":/okit/modules:/okit/okitserver:/okit" \
+    PYTHONPATH=":/okit/visualiser:/okit/okitweb:/okit" \
     FLASK_APP=okitweb \
     FLASK_DEBUG=1 \
     LANG=en_GB.UTF-8 \
     LANGUAGE=en_GB:en \
     LC_ALL=en_GB.UTF-8 \
-    PATH=/root/bin:${PATH} \
-    OKIT_DIR=/okit \
-    OKIT_GITHUB_DIR=/okit_github
+    PATH=/root/bin:${PATH}
 # Expose Ports
 EXPOSE 80
 EXPOSE 443
@@ -28,38 +25,47 @@ EXPOSE 443
 # COPY containers/docker/run-server.sh /root/bin/
 # Install new yum repos
 RUN yum install -y \
-    oraclelinux-developer-release-el8 \
+    oracle-softwarecollection-release-el7 \
+    oraclelinux-developer-release-el7 \
+# Disable oci config repo
+ && yum-config-manager --disable ol7_ociyum_config \
 # Update base image
  && yum update -y \
 # Install additional packages
  && yum install -y \
         git \
         openssl \
-        python38 \
+        python36 \
         python3-pip \
  && rm -rf /var/cache/yum \
- && alternatives --set python3 /usr/bin/python3.8 \
-# Configure ssh
- && echo 'Host *' > /etc/ssh/ssh_config \
- && echo '  StrictHostKeyChecking no' >> /etc/ssh/ssh_config \
- && echo '  UserKnownHostsFile=/dev/null' >> /etc/ssh/ssh_config \
 # Upgrade pip
  && python3 -m pip install --upgrade pip \
-# Create Workspace
- && mkdir -p ${OKIT_GITHUB_DIR} \
- && echo "Branch: $BRANCH" \
- && git clone --branch $BRANCH --single-branch \
-            --config core.autocrlf=input \ 
-            https://github.com/ajithy/oci-designer-toolkit.git ${OKIT_GITHUB_DIR}/oci-designer-toolkit \
- && mkdir -p ${OKIT_DIR}/{git,local,log,instance/git,instance/local,instance/templates/user,workspace,ssl} \
- && mkdir -p /root/bin \
- && ln -sv ${OKIT_GITHUB_DIR}/oci-designer-toolkit/okitclassic/config ${OKIT_DIR}/config \
- && ln -sv ${OKIT_GITHUB_DIR}/oci-designer-toolkit/okitclassic/okitserver ${OKIT_DIR}/okitserver \
- && ln -sv ${OKIT_GITHUB_DIR}/oci-designer-toolkit/okitclassic/modules ${OKIT_DIR}/modules \
- && ln -sv ${OKIT_GITHUB_DIR}/oci-designer-toolkit/okitclassic/containers/docker/run-server.sh /root/bin/run-server.sh \
- && ln -sv ${OKIT_GITHUB_DIR}/oci-designer-toolkit/okitclassic/okitserver/static/okit/templates/reference_architecture ${OKIT_DIR}/instance/templates/reference_architecture \
- && chmod a+x /root/bin/run-server.sh \
 # Install required python modules
- && python3 -m pip install --no-cache-dir -r ${OKIT_GITHUB_DIR}/oci-designer-toolkit/requirements.txt
+ && pip3 install --no-cache-dir \
+        authlib==0.15.3 \
+        flask==1.1.2 \
+        gitpython==3.1.14 \
+        git-url-parse==1.2.2 \
+        gunicorn==20.0.4 \
+        oci \
+        openpyxl==3.0.7 \
+        pandas==1.1.2 \
+        python-magic==0.4.22 \
+        pyyaml==5.4.1 \
+        requests==2.25.1 \
+        xlsxwriter==1.3.7 \
+# Create Workspace
+ && mkdir -p /github \
+ && git clone -c core.autocrlf=input https://github.com/oracle/oci-designer-toolkit.git /github/oci-designer-toolkit \
+ && mkdir -p /okit/{log,workspace,ssl} \
+ && mkdir -p /root/bin \
+ && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /okit/ssl/okit.key -out /okit/ssl/okit.crt -subj "/C=GB/ST=Berkshire/L=Reading/O=Oracle/OU=OKIT/CN=www.oci_okit.com" \
+ && ln -sv /github/oci-designer-toolkit/config /okit/config \
+ && ln -sv /github/oci-designer-toolkit/okitweb /okit/okitweb \
+ && ln -sv /github/oci-designer-toolkit/visualiser /okit/visualiser \
+ && ln -sv /github/oci-designer-toolkit/containers/docker/run-server.sh /root/bin/run-server.sh \
+ && mkdir -p /okit/okitweb/static/okit/templates \
+ && ln -sv /okit/templates /okit/okitweb/static/okit/templates/user \
+ && chmod a+x /root/bin/run-server.sh
 # Add entrypoint to automatically start webserver
 CMD ["run-server.sh"]
